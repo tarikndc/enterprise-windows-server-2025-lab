@@ -1,36 +1,49 @@
-# Runbook 01: Base Server Installation & Network Configuration
+# Runbook 01: Base Server & Client Workstation Setup
 
 ## Objective
-Deploy the base operating system instance on VMware Workstation, set standard corporate host naming conventions, and assign static IP parameters required for a Domain Controller.
+Deploy the base operating system instances (Windows Server 2025 and Windows 11 Pro) on VMware, establish standard host naming conventions, and verify baseline network connectivity.
 
 ---
 
-## Server Specifications
+## Machine Specifications
+
+### 1. Server Node
 * **Hostname:** `WS25-DC01`
 * **Operating System:** Windows Server 2025
-* **Hypervisor:** VMware
-
----
-
-## Configuration Details
-
-### 1. Hostname Assignment
-Renamed the default computer name to standard enterprise convention:
-* **Assigned Hostname:** `WS25-DC01`
-
-### 2. Network Configuration (Static IP)
-Configured static addressing on the primary network interface to prevent IP drift before deploying directory services:
-
-* **IPv4 Address:** `192.168.17.3`
-* **Subnet Mask:** `255.255.255.0` (`/24`)
+* **Role:** Domain Controller (Designated)
+* **IP Configuration:** Static (`192.168.17.3/24`)
 * **Default Gateway:** `192.168.17.2`
-* **Preferred DNS:** `127.0.0.1` (Points to loopback for upcoming DNS/AD DS role)
+* **Preferred DNS:** `127.0.0.1`
+
+### 2. Client Node
+* **Hostname:** `guest01`
+* **Operating System:** Windows 11 Pro
+* **Local User:** `user01`
+* **IP Configuration:** Dynamic (`192.168.17.131/24`)
+* **Default Gateway:** `192.168.17.2`
 
 ---
 
-## Verification
-Executed `ipconfig /all` in Command Prompt to confirm network adapter binding:
+## Implementation Details
 
+### Server (WS25-DC01) Network Configuration
+Static IP parameters were bound to the primary virtual adapter to prepare for Active Directory Domain Services (AD DS) and DNS roles:
+* **IPv4 Address:** `192.168.17.3`
+* **Subnet Mask:** `255.255.255.0`
+* **Default Gateway:** `192.168.17.2`
+
+### Workstation (guest01) Baseline
+A fresh Windows 11 Pro instance was provisioned to serve as a domain member endpoint for testing Group Policy Objects (GPOs), network shares, and user authentication:
+* **Local Account Created:** `user01`
+* **Current Lease:** `192.168.17.131` via hypervisor DHCP (to be migrated to Windows Server DHCP later).
+
+---
+
+## Verification & Connectivity Test
+
+Ran `ipconfig` verification on both nodes to confirm active network bindings within the `192.168.17.0/24` subnet:
+
+**Server (`WS25-DC01`):**
 ```cmd
 IPv4 Address. . . . . . . . . . . : 192.168.17.3
 Subnet Mask . . . . . . . . . . . : 255.255.255.0
